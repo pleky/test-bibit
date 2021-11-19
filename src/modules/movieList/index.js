@@ -1,5 +1,5 @@
 import { Container, Skeleton, Typography } from "@mui/material";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Layout from "../../components/layout";
 import { fetchMovieListAction } from "./action";
@@ -7,6 +7,7 @@ import Thumbnail from "./components/thumbnail";
 import { Box } from "@mui/system";
 import PosterModal from "./components/posterModal";
 import useIntersectionObserver from "../../hooks/useIntersectionObserver";
+import { useDebounce } from "../../hooks/useDebounce";
 
 export default function MovieList() {
   const dispatch = useDispatch();
@@ -14,6 +15,8 @@ export default function MovieList() {
   const [imageUrl, setImageUrl] = useState("");
   const [pageYOffset, setPageYOffset] = useState(window.pageYOffset);
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const debounceValue = useDebounce(search, 500);
   const ref = useRef({});
 
   const movieList = useSelector((state) => state.movieList);
@@ -21,18 +24,36 @@ export default function MovieList() {
   useEffect(() => {
     dispatch(
       fetchMovieListAction({
-        page: page,
-        title: movieList.keyword,
+        page: 1,
       })
     );
-  }, [dispatch, page, movieList.keyword]);
+  }, []);
+
+  useEffect(() => {
+    if (debounceValue.length >= 3) {
+      dispatch(
+        fetchMovieListAction({
+          page: 1,
+          title: debounceValue,
+        })
+      );
+    }
+  }, [dispatch, debounceValue]);
 
   useIntersectionObserver({
     enabled: movieList.hasNextPage,
     target: ref,
     onIntersect: () => {
-      setPage((curr) => curr + 1);
-      setPageYOffset(window.pageYOffset);
+      dispatch(
+        fetchMovieListAction({
+          page: page + 1,
+          title: search,
+          callback: () => {
+            setPage(page + 1);
+            setPageYOffset(window.pageYOffset);
+          },
+        })
+      );
     },
   });
 
@@ -41,15 +62,21 @@ export default function MovieList() {
     setVisible(true);
   };
 
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     window.scrollTo({
       top: pageYOffset,
-      behavior: "auto",
+      behavior: "smooth",
     });
   }, [pageYOffset, movieList.data.length]);
 
+  const _handleSearch = (keyword) => {
+    setSearch(keyword);
+    setPage(1);
+    setPageYOffset(0);
+  };
+
   return (
-    <Layout>
+    <Layout onSearch={_handleSearch} withSearchBar={true}>
       <Container sx={{ marginTop: 2 }}>
         {movieList.isLoading &&
           placeHolderData.map((val) => (

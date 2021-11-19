@@ -1,17 +1,23 @@
-import { Typography } from "@mui/material";
+import { Skeleton, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import React from "react";
 import PropTypes from "prop-types";
 
-export default function Attribute({ title, value, icon }) {
+export default function Attribute({ title, value, icon, isLoading }) {
   return (
-    <Box sx={styles.container}>
-      {icon}
-      <Typography variant="caption" mt={0.5}>
-        {title}
-      </Typography>
-      <Typography variant="body1">{value}</Typography>
-    </Box>
+    <>
+      {isLoading ? (
+        <Skeleton variant="rectangular" width="100%" sx={styles.container} />
+      ) : (
+        <Box sx={styles.container}>
+          {icon}
+          <Typography variant="caption" mt={0.5}>
+            {title}
+          </Typography>
+          <Typography variant="body1">{value}</Typography>
+        </Box>
+      )}
+    </>
   );
 }
 
@@ -26,6 +32,7 @@ const styles = {
     alignItems: "center",
     display: "flex",
     flexDirection: "column",
+    minHeight: 106,
   },
 };
 

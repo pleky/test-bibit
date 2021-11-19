@@ -6,11 +6,8 @@ import Toolbar from "@mui/material/Toolbar";
 import InputBase from "@mui/material/InputBase";
 import SearchIcon from "@mui/icons-material/Search";
 import CssBaseline from "@mui/material/CssBaseline";
-import { useDebounce } from "../hooks/useDebounce";
 import { Typography } from "@mui/material";
 import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { fetchMovieListAction } from "../modules/movieList/action";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -53,26 +50,11 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-export default function Layout({ children }) {
-  const [search, setSearch] = React.useState("");
-  const dispatch = useDispatch();
-  const debounceValue = useDebounce(search, 500);
-
+export default function Layout({ children, onSearch, withSearchBar }) {
   const handleChange = (event) => {
     const { value } = event.target;
-    setSearch(value);
+    onSearch(value);
   };
-
-  React.useEffect(() => {
-    if (debounceValue.length >= 3 || debounceValue.length === 0) {
-      dispatch(
-        fetchMovieListAction({
-          title: debounceValue || "batman",
-          page: 1,
-        })
-      );
-    }
-  }, [debounceValue, dispatch]);
 
   return (
     <>
@@ -86,27 +68,28 @@ export default function Layout({ children }) {
           paddingBottom: "2rem",
         }}
       >
-        <AppBar position="sticky">
-          <Toolbar>
-            <Search>
-              <SearchIconWrapper>
-                <SearchIcon />
-              </SearchIconWrapper>
-              <StyledInputBase
-                placeholder="Search…"
-                inputProps={{ "aria-label": "search" }}
-                onChange={handleChange}
-              />
-            </Search>
+        {withSearchBar && (
+          <AppBar position="sticky">
+            <Toolbar>
+              <Search>
+                <SearchIconWrapper>
+                  <SearchIcon />
+                </SearchIconWrapper>
+                <StyledInputBase
+                  placeholder="Search…"
+                  inputProps={{ "aria-label": "search" }}
+                  onChange={handleChange}
+                />
+              </Search>
 
-            <Typography ml="auto" variant="h6" color="inherit">
-              <Link style={{ textDecoration: "none", color: "white" }} to="/">
-                OMDB
-              </Link>
-            </Typography>
-          </Toolbar>
-        </AppBar>
-
+              <Typography ml="auto" variant="h6" color="inherit">
+                <Link style={{ textDecoration: "none", color: "white" }} to="/">
+                  OMDB
+                </Link>
+              </Typography>
+            </Toolbar>
+          </AppBar>
+        )}
         {children}
       </Box>
     </>

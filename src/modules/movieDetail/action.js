@@ -28,7 +28,7 @@ const onError = (error) => {
 export const fetchMovieDetailAction = (title) => async (dispatch) => {
   dispatch(startRequest());
   try {
-    const response = await api.get(`?apikey=9fbc926a&t=${title}&plot=full`);
+    const response = await api.get(`?apikey=504ec674&t=${title}&plot=full`);
     dispatch(onSuccess(response));
   } catch (error) {
     onError(error);

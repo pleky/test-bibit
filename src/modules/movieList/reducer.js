@@ -11,7 +11,6 @@ const initialState = {
   isSuccess: false,
   errorMessage: "",
   isFethingNextPage: false,
-  page: 1,
   hasNextPage: false,
   keyword: "batman",
 };
@@ -26,8 +25,6 @@ export const movieListReducer = (state = initialState, action) => {
         isSuccess: false,
         errorMessage: "",
         isFethingNextPage: state.hasNextPage,
-        page: state.page + 1,
-        keyword: action.keyword,
       };
     case FETCH_MOVIE_LIST_SUCCESS:
       return {
@@ -35,11 +32,13 @@ export const movieListReducer = (state = initialState, action) => {
         isLoading: false,
         isError: false,
         isSuccess: true,
-        data: state.isFethingNextPage
-          ? [...state.data, ...action.payload]
-          : action.payload,
-        hasNextPage: state.page < Math.ceil(action.totalResults / 10),
+        data:
+          action.keyword === state.keyword
+            ? [...state.data, ...action.payload]
+            : action.payload,
+        hasNextPage: action.page < Math.ceil(action.totalResults / 10),
         isFethingNextPage: false,
+        keyword: action.keyword,
       };
     case FETCH_MOVIE_LIST_FAILURE:
       return {
@@ -49,7 +48,6 @@ export const movieListReducer = (state = initialState, action) => {
         isSuccess: false,
         errorMessage: action.payload,
         isFethingNextPage: false,
-        page: 1,
         hasNextPage: false,
         data: [],
       };

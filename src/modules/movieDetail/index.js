@@ -1,4 +1,9 @@
-import { Container, containerClasses, Typography } from "@mui/material";
+import {
+  Container,
+  containerClasses,
+  Skeleton,
+  Typography,
+} from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -26,37 +31,57 @@ export default function MovieDetail({ title }) {
       <Box sx={styles.container}>
         <Container sx={{ marginTop: 2 }}>
           <Box sx={{ display: "flex" }}>
-            <Poster url={movieDetail.data.Poster} />
+            {!movieDetail.isLoading && movieDetail.isSuccess ? (
+              <Poster url={movieDetail.data.Poster} />
+            ) : (
+              <Skeleton
+                variant="rectangular"
+                width={210}
+                height={350}
+                sx={{ borderRadius: "10px" }}
+              />
+            )}
             <Box sx={{ flex: 0.2 }} />
             <Box sx={styles.attributeWrapper}>
               <Attribute
+                isLoading={movieDetail.isLoading && movieDetail.isSuccess}
                 title="Genre"
                 value={getFirstItemFromStr(movieDetail.data.Genre)}
                 icon={<MovieFilterIcon />}
               />
 
               <Attribute
+                isLoading={movieDetail.isLoading && movieDetail.isSuccess}
                 title="Runtime"
                 value={movieDetail.data.Runtime}
                 icon={<AccessTimeFilledIcon />}
               />
-              {/* 
+
               <Attribute
+                isLoading={movieDetail.isLoading && movieDetail.isSuccess}
                 title="Rating"
-                value={movieDetail.data?.Ratings[0]?.Value}
+                value={movieDetail.data?.Ratings?.[0]?.Value}
                 icon={<GradeIcon />}
-              /> */}
+              />
             </Box>
           </Box>
 
-          <Typography variant="h5">
-            {movieDetail.data.Title} ({movieDetail.data.Year})
-          </Typography>
+          {!movieDetail.isLoading && movieDetail.isSuccess ? (
+            <Typography variant="h5">
+              {movieDetail.data.Title} ({movieDetail.data.Year})
+            </Typography>
+          ) : (
+            <Skeleton variant="text" />
+          )}
 
-          <Box mt={2}>
-            <Typography variant="h6">Plot</Typography>
-            <Typography variant="body1">{movieDetail.data.Plot}</Typography>
-          </Box>
+          {!movieDetail.isLoading && movieDetail.isSuccess ? (
+            <Box mt={2}>
+              <Typography variant="h6">Plot</Typography>
+              <Typography variant="body1">{movieDetail.data.Plot}</Typography>
+            </Box>
+          ) : (
+            <Skeleton variant="rectangular" height={400} />
+          )}
 
           <Box my={2}>
             <Typography variant="h6">Director</Typography>
